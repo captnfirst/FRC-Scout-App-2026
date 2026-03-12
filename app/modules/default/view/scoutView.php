@@ -153,13 +153,27 @@
                 <span class="badge bg-white text-primary fs-6 me-2 shadow-sm mb-1 mb-md-0 d-inline-block">
                     <i class="fas fa-robot me-1"></i> FRC <?= htmlspecialchars(str_replace('frc', '', $data['team_key'])) ?>
                 </span>
-                <span class="badge bg-info text-dark fs-6 shadow-sm d-inline-block">
-                    <i class="fas fa-flag-checkered me-1"></i> <?= strtoupper(htmlspecialchars($data['match_key'])) ?>
-                </span>
+                <?php if (!empty($data['is_practice'])): ?>
+                    <span class="badge bg-warning text-dark fs-6 shadow-sm d-inline-block">
+                        <i class="fas fa-flask me-1"></i>
+                        <?php
+                            // practice_{eventKey}_pm{N} formatından PM {N} şeklinde göster
+                            preg_match('/_pm(\d+)$/', $data['match_key'], $pmMatch);
+                            echo 'DENEME - PM ' . (isset($pmMatch[1]) ? $pmMatch[1] : '');
+                        ?>
+                    </span>
+                <?php else: ?>
+                    <span class="badge bg-info text-dark fs-6 shadow-sm d-inline-block">
+                        <i class="fas fa-flag-checkered me-1"></i> <?= strtoupper(htmlspecialchars($data['match_key'])) ?>
+                    </span>
+                <?php endif; ?>
             </div>
         </div>
 
-        <a href="/default/matches/<?= htmlspecialchars($data['team_key']) ?>/<?= htmlspecialchars($data['event_key']) ?>" class="cancel-btn-custom flex-shrink-0">
+        <?php $cancelUrl = (!empty($data['is_practice']))
+            ? "/default/practice_matches/" . htmlspecialchars($data['team_key']) . "/" . htmlspecialchars($data['event_key'])
+            : "/default/matches/" . htmlspecialchars($data['team_key']) . "/" . htmlspecialchars($data['event_key']); ?>
+        <a href="<?= $cancelUrl ?>" class="cancel-btn-custom flex-shrink-0">
             <i class="fas fa-times me-md-2"></i> <span class="d-none d-md-inline">İptal Et</span>
         </a>
     </div>

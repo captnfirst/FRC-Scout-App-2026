@@ -29,6 +29,27 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
+    /* Deneme Maçları Butonu */
+    .practice-btn-custom {
+        background-color: rgba(123, 45, 139, 0.25);
+        color: white;
+        border: 1px solid rgba(200, 130, 220, 0.5);
+        border-radius: 10px;
+        padding: 10px 18px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(5px);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .practice-btn-custom:hover {
+        background-color: #7b2d8b;
+        color: white;
+        box-shadow: 0 4px 10px rgba(123,45,139,0.3);
+    }
+
     /* Modern Maç Kartı Tasarımı */
     .match-card {
         border-radius: 12px;
@@ -87,9 +108,14 @@
                     </div>
                 </div>
 
-                <a href="/default/teams/<?= htmlspecialchars($data['secilen_turnuva']) ?>" class="back-btn-custom flex-shrink-0">
-                    <i class="fas fa-arrow-left me-md-2"></i> <span class="d-none d-md-inline">Takımlara Dön</span>
-                </a>
+                <div class="d-flex gap-2 flex-shrink-0 flex-wrap justify-content-end">
+                    <a href="/default/practice_matches/<?= htmlspecialchars($data['secilen_takim']) ?>/<?= htmlspecialchars($data['secilen_turnuva']) ?>" class="practice-btn-custom">
+                        <i class="fas fa-flask me-md-2"></i> <span class="d-none d-md-inline">Deneme Maçları</span>
+                    </a>
+                    <a href="/default/teams/<?= htmlspecialchars($data['secilen_turnuva']) ?>" class="back-btn-custom">
+                        <i class="fas fa-arrow-left me-md-2"></i> <span class="d-none d-md-inline">Takımlara Dön</span>
+                    </a>
+                </div>
             </div>
 
             <div class="row">

@@ -84,14 +84,18 @@ class defaultController extends Controller {
 
         $defaultModel = new defaultModel();
 
-        // YENİ: URL'den zorla girilmeye çalışılırsa, veri girilmiş mi diye bak ve geri at
+        // URL'den zorla girilmeye çalışılırsa, veri girilmiş mi diye bak ve geri at
         if ($defaultModel->isMatchScoutedModel($matchKey, $teamKey)) {
+            if (strpos($matchKey, 'practice_') === 0) {
+                Controller::redirect("/default/practice_matches/" . $teamKey . "/" . $eventKey);
+            }
             Controller::redirect("/default/matches/" . $teamKey . "/" . $eventKey);
         }
 
         $data['match_key'] = $matchKey;
         $data['team_key'] = $teamKey;
         $data['event_key'] = $eventKey;
+        $data['is_practice'] = (strpos($matchKey, 'practice_') === 0);
 
         $this->RenderLayout("score", "default", "scout", $data);
     }
@@ -106,15 +110,64 @@ class defaultController extends Controller {
 
             // YENİ: Tam kaydetmeden önce son kez kontrol et (Aynı anda 2 kişi basarsa diye)
             if ($defaultModel->isMatchScoutedModel($matchKey, $teamKey)) {
+                // Practice match ise practice sayfasına yönlendir
+                if (strpos($matchKey, 'practice_') === 0) {
+                    Controller::redirect("/default/practice_matches/" . $teamKey . "/" . $eventKey);
+                }
                 Controller::redirect("/default/matches/" . $teamKey . "/" . $eventKey);
             }
 
             $kayitDurumu = $defaultModel->saveScoutModel($_POST);
 
             if ($kayitDurumu) {
+                // Practice match ise practice sayfasına yönlendir
+                if (strpos($matchKey, 'practice_') === 0) {
+                    Controller::redirect("/default/practice_matches/" . $teamKey . "/" . $eventKey);
+                }
                 Controller::redirect("/default/matches/" . $teamKey . "/" . $eventKey);
             } else {
                 die("Veriler kaydedilirken veritabanında bir hata oluştu!");
+            }
+        } else {
+            Controller::redirect("/default/index");
+        }
+    }
+
+    public function practice_matchesAction($teamKey = null, $eventKey = null){
+        $data = array();
+        if (!$teamKey || !$eventKey) die("Takım veya Turnuva seçilmedi!");
+
+        $defaultModel = new defaultModel();
+        $data['practice_matches'] = $defaultModel->getPracticeMatchesModel($teamKey, $eventKey);
+        $data['scouted_matches'] = $defaultModel->getScoutedMatchesModel($teamKey, $eventKey);
+        $data['secilen_takim'] = $teamKey;
+        $data['secilen_turnuva'] = $eventKey;
+
+        $this->RenderLayout("score", "default", "practice_matches", $data);
+    }
+
+    public function add_practice_matchAction(){
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $defaultModel = new defaultModel();
+
+            $teamKey = $_POST['team_key'];
+            $eventKey = $_POST['event_key'];
+            $matchNumber = intval($_POST['match_number']);
+
+            if ($matchNumber < 1) {
+                Controller::redirect("/default/practice_matches/" . $teamKey . "/" . $eventKey);
+            }
+
+            // Benzersiz match_key oluştur: practice_{eventKey}_pm{number}
+            $matchKey = 'practice_' . $eventKey . '_pm' . $matchNumber;
+
+            $practiceMatchId = $defaultModel->addPracticeMatchModel($teamKey, $eventKey, $matchNumber, $matchKey);
+
+            if ($practiceMatchId) {
+                // Doğrudan scout formuna yönlendir
+                Controller::redirect("/default/scout/" . $matchKey . "/" . $teamKey . "/" . $eventKey);
+            } else {
+                Controller::redirect("/default/practice_matches/" . $teamKey . "/" . $eventKey);
             }
         } else {
             Controller::redirect("/default/index");

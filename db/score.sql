@@ -82,6 +82,21 @@ INSERT INTO `score_weights` (`id`, `epa`, `auto`, `teleop`, `climb`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Tablo için tablo yapısı `practice_matches`
+--
+
+CREATE TABLE `practice_matches` (
+  `id` int(11) NOT NULL,
+  `tournament_key` varchar(50) NOT NULL,
+  `team_key` varchar(50) NOT NULL,
+  `match_number` int(11) NOT NULL,
+  `match_key` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tablo için tablo yapısı `scout_data`
 --
 
@@ -120,6 +135,12 @@ ALTER TABLE `pit_scout_data`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Tablo için indeksler `practice_matches`
+--
+ALTER TABLE `practice_matches`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Tablo için indeksler `score_weights`
 --
 ALTER TABLE `score_weights`
@@ -145,6 +166,12 @@ ALTER TABLE `admin_score`
 -- Tablo için AUTO_INCREMENT değeri `pit_scout_data`
 --
 ALTER TABLE `pit_scout_data`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Tablo için AUTO_INCREMENT değeri `practice_matches`
+--
+ALTER TABLE `practice_matches`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

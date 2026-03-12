@@ -287,6 +287,34 @@ class defaultModel extends Model
         return $rankData;
     }
 
+    // --- DENEME MAÇLARI (PRACTICE MATCHES) ---
+
+    public function getPracticeMatchesModel($teamKey, $eventKey) {
+        $this->db->where("team_key", $teamKey);
+        $this->db->where("tournament_key", $eventKey);
+        $this->db->orderBy("match_number", "ASC");
+        return $this->db->get("practice_matches");
+    }
+
+    public function addPracticeMatchModel($teamKey, $eventKey, $matchNumber, $matchKey) {
+        // Aynı numara zaten varsa tekrar ekleme
+        $this->db->where("tournament_key", $eventKey);
+        $this->db->where("team_key", $teamKey);
+        $this->db->where("match_number", $matchNumber);
+        $existing = $this->db->getOne("practice_matches");
+        if ($existing) {
+            return $existing['id'];
+        }
+
+        $insertData = array(
+            'tournament_key' => $eventKey,
+            'team_key'       => $teamKey,
+            'match_number'   => $matchNumber,
+            'match_key'      => $matchKey
+        );
+        return $this->db->insert("practice_matches", $insertData);
+    }
+
     public function getScoutMatchesByTeam($teamKey, $eventKey) {
         $this->db->where("team_key", $teamKey);
         $this->db->where("tournament_key", $eventKey);

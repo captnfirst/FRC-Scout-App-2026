@@ -31,4 +31,7 @@ App::post('/default/addadmin',true);
 App::post('/default/savescout', true);
 App::post('/default/savepitscout', true);
 
+App::get('/default/practice_matches/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)', true);
+App::post('/default/add_practice_match', true);
+
 ?>
