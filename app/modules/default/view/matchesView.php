@@ -66,6 +66,17 @@
         font-size: 1.3rem;
         letter-spacing: 0.5px;
     }
+
+    .back-btn-custom {
+        cursor: pointer;
+        outline: none;
+    }
+
+    /* Deneme maçı butonu üzerine gelince parlaması için */
+    .back-btn-custom[data-target="#practiceMatchModal"]:hover {
+        background-color: #ffc107 !important;
+        color: #000 !important;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -86,6 +97,13 @@
                         </span>
                     </div>
                 </div>
+
+                <button type="button" class="back-btn-custom flex-shrink-0 me-2 border-0"
+                        data-toggle="modal" data-target="#practiceMatchModal"
+                        style="background: #ffc107; color: #1e3c72;">
+                    <i class="fas fa-plus me-md-2"></i>
+                    <span class="d-none d-md-inline">Deneme Maçı Ekle</span>
+                </button>
 
                 <a href="/default/teams/<?= htmlspecialchars($data['secilen_turnuva']) ?>" class="back-btn-custom flex-shrink-0">
                     <i class="fas fa-arrow-left me-md-2"></i> <span class="d-none d-md-inline">Takımlara Dön</span>
@@ -205,4 +223,32 @@
 
         </div>
     </section>
+</div>
+
+<div class="modal fade" id="practiceMatchModal" tabindex="-1" role="dialog" aria-labelledby="practiceMatchModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="practiceMatchModalLabel">
+                    <i class="fas fa-plus-circle"></i> Yeni Deneme Maçı Oluştur
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="pm_number" class="font-weight-bold">Maç Numarası</label>
+                    <input type="number" id="pm_number" class="form-control form-control-lg" placeholder="Örn: 1" min="1">
+                    <small class="text-muted">Bu numara maç anahtarına (PM-X) eklenecektir.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Vazgeç</button>
+                <button type="button" id="savePracticeMatch" class="btn btn-primary">
+                    Maçı Oluştur ve Scout Et <i class="fas fa-chevron-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

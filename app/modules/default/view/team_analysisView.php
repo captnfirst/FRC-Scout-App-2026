@@ -245,28 +245,48 @@
                                             </div>
 
                                             <div class="row text-center g-2 flex-grow-1">
-                                                <div class="col-6 col-md-3">
+                                                <div class="col-6 col-md-auto flex-fill">
                                                     <div class="p-2 bg-info rounded h-100 d-flex flex-column justify-content-center shadow-sm">
                                                         <span class="text-white stat-box-label d-block mb-1">Auto Yakıt</span>
                                                         <span class="fs-3 text-white stat-box-value"><?= $match['auto_fuel'] ?></span>
                                                     </div>
                                                 </div>
-                                                <div class="col-6 col-md-3">
+                                                <div class="col-6 col-md-auto flex-fill">
                                                     <div class="p-2 bg-success rounded h-100 d-flex flex-column justify-content-center shadow-sm">
                                                         <span class="text-white stat-box-label d-block mb-1">Teleop Yakıt</span>
                                                         <span class="fs-3 text-white stat-box-value"><?= $match['teleop_fuel'] ?></span>
                                                     </div>
                                                 </div>
-                                                <div class="col-6 col-md-3">
+                                                <div class="col-6 col-md-auto flex-fill">
                                                     <div class="p-2 bg-warning rounded h-100 d-flex flex-column justify-content-center shadow-sm">
                                                         <span class="text-dark stat-box-label d-block mb-1" style="text-shadow: none;">Tırmanma</span>
                                                         <span class="fs-5 text-dark stat-box-value text-capitalize lh-1 mt-1" style="text-shadow: none;"><?= $match['teleop_climb'] ?></span>
                                                     </div>
                                                 </div>
-                                                <div class="col-6 col-md-3">
+                                                <div class="col-6 col-md-auto flex-fill">
                                                     <div class="p-2 bg-danger rounded h-100 d-flex flex-column justify-content-center shadow-sm">
                                                         <span class="text-white stat-box-label d-block mb-1">Feed Kalitesi</span>
-                                                        <span class="fs-5 text-white stat-box-value text-capitalize lh-1 mt-1"><?= $match['teleop_shooting'] ?? 'Bilinmiyor' ?></span>
+                                                        <span class="fs-5 text-white stat-box-value text-capitalize lh-1 mt-1"><?= empty($match['teleop_shooting']) ? '-' : $match['teleop_shooting'] ?></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-auto flex-fill">
+                                                    <div class="p-2 bg-secondary rounded h-100 d-flex flex-column justify-content-center shadow-sm">
+                                                        <span class="text-white stat-box-label d-block mb-1">Rol / Defans</span>
+                                                        <span class="fs-5 text-white stat-box-value text-capitalize lh-1 mt-1">
+                <?php
+                $rol = $match['teleop_robot_role'] ?? '-';
+                if ($rol === 'defans') {
+                    echo 'Defans (' . ($match['teleop_defense_quality'] ?? '-') . ')';
+                } else if ($rol === 'skorlama') {
+                    echo 'Skorlama';
+                } else if ($rol === 'calismadi') {
+                    echo 'Bozuldu';
+                } else {
+                    echo $rol;
+                }
+                ?>
+            </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -275,7 +295,7 @@
                                                 <div class="mt-3 text-center border-top pt-3">
                                                     <small class="text-muted fw-bold d-block mb-2"><i class="fas fa-route text-primary me-1"></i> Çizilen Otonom Rotası:</small>
                                                     <div class="rounded shadow-sm mx-auto overflow-hidden border border-secondary"
-                                                         style="max-width: 300px; max-height: 150px; background-image: url('/dist/img/saha.png'); background-size: cover; background-position: center;">
+                                                         style="max-width: 300px; max-height: 150px; background-image: url('/dist/img/SAHA.png'); background-size: cover; background-position: center;">
 
                                                         <img src="<?= $match['auto_path'] ?>"
                                                              class="img-fluid w-100 h-100"

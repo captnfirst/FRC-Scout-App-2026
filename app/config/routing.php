@@ -31,4 +31,6 @@ App::post('/default/addadmin',true);
 App::post('/default/savescout', true);
 App::post('/default/savepitscout', true);
 
+App::post('/default/addPracticeMatch', true);
+
 ?>

@@ -72,7 +72,6 @@ class defaultController extends Controller {
         $data['secilen_takim'] = $teamKey;
         $data['secilen_turnuva'] = $eventKey;
 
-        // YENİ: Daha önce girilmiş maçların listesini çekip View'a gönderiyoruz
         $data['scouted_matches'] = $defaultModel->getScoutedMatchesModel($teamKey, $eventKey);
 
         $this->RenderLayout("score", "default", "matches", $data);
@@ -84,7 +83,6 @@ class defaultController extends Controller {
 
         $defaultModel = new defaultModel();
 
-        // YENİ: URL'den zorla girilmeye çalışılırsa, veri girilmiş mi diye bak ve geri at
         if ($defaultModel->isMatchScoutedModel($matchKey, $teamKey)) {
             Controller::redirect("/default/matches/" . $teamKey . "/" . $eventKey);
         }
@@ -92,6 +90,9 @@ class defaultController extends Controller {
         $data['match_key'] = $matchKey;
         $data['team_key'] = $teamKey;
         $data['event_key'] = $eventKey;
+
+        $data['secilen_takim'] = $teamKey;
+        $data['secilen_turnuva'] = $eventKey;
 
         $this->RenderLayout("score", "default", "scout", $data);
     }
@@ -104,7 +105,6 @@ class defaultController extends Controller {
             $matchKey = $_POST['match_key'];
             $eventKey = $_POST['event_key'];
 
-            // YENİ: Tam kaydetmeden önce son kez kontrol et (Aynı anda 2 kişi basarsa diye)
             if ($defaultModel->isMatchScoutedModel($matchKey, $teamKey)) {
                 Controller::redirect("/default/matches/" . $teamKey . "/" . $eventKey);
             }
@@ -152,7 +152,7 @@ class defaultController extends Controller {
         $data['team_key'] = $teamKey;
         $data['event_key'] = $eventKey;
 
-        $this->RenderLayout("score", "default", "pit_scout", $data); // View: pit_scoutView.php
+        $this->RenderLayout("score", "default", "pit_scout", $data);
     }
 
     public function savepitscoutAction(){
@@ -165,7 +165,6 @@ class defaultController extends Controller {
                 Controller::redirect("/default/pit_teams/" . $eventKey);
             }
 
-            // Verileri ve Yüklenen Dosyayı (Resmi) Gönder
             $kayitDurumu = $defaultModel->savePitScoutModel($_POST, $_FILES);
 
             if ($kayitDurumu) {
@@ -189,13 +188,10 @@ class defaultController extends Controller {
 
         $defaultModel = new defaultModel();
 
-        // 1. TBA'den Turnuvadaki Takımları Al
         $data['takimlar'] = $defaultModel->getTeamsModel($eventKey);
 
-        // 2. Statbotics'ten Turnuva EPA'larını Al
         $data['epa_data'] = $defaultModel->getStatboticsEPA($eventKey);
 
-        // 3. Kendi Veritabanımızdan Takımların Ortalama Puanlarını Al
         $data['scout_stats'] = $defaultModel->getEventScoutStatsModel($eventKey);
 
         $data['live_rankings'] = $defaultModel->getEventRankingsModel($eventKey);
@@ -213,7 +209,6 @@ class defaultController extends Controller {
 
         $defaultModel = new defaultModel();
 
-        // 1. Takım Bilgileri
         $teams = $defaultModel->getTeamsModel($eventKey);
         foreach($teams as $t) {
             if($t['key'] === $teamKey) {
@@ -222,26 +217,21 @@ class defaultController extends Controller {
             }
         }
 
-        // 2. TBA Maçları (Video Linkleri İçin)
         $data['tba_matches'] = $defaultModel->getMatchesModelDetailed($teamKey, $eventKey);
 
-        // 3. Scout Ekibimizin Girdiği Maç Verileri (MODEL ÜZERİNDEN ÇAĞIRIYORUZ)
         $data['scout_matches'] = $defaultModel->getScoutMatchesByTeam($teamKey, $eventKey);
 
-        // 4. Pit Scout Verileri (Resim ve Şase) (MODEL ÜZERİNDEN ÇAĞIRIYORUZ)
         $data['pit_data'] = $defaultModel->getPitDataByTeam($teamKey, $eventKey);
 
         $data['team_key'] = $teamKey;
         $data['event_key'] = $eventKey;
+        $data['secilen_takim'] = $teamKey;
+        $data['secilen_turnuva'] = $eventKey;
 
         $this->RenderLayout("score", "default", "team_analysis", $data);
     }
 
-    // --- SKOR AĞIRLIKLARI (AGR SCORE) KONTROLCÜLERİ ---
-
-    // Ağırlık Ayarları Sayfasını Açar (Sadece Adminler İçin)
     public function score_weightsAction() {
-        // Güvenlik: Kullanıcı giriş yapmamışsa veya Admin değilse ana sayfaya at
         if (!isset($_SESSION['admin']) || $_SESSION['admin']['administrator'] != 1) {
             Controller::redirect("/default/index");
             exit;
@@ -250,15 +240,12 @@ class defaultController extends Controller {
         $data = array();
         $defaultModel = new defaultModel();
 
-        // Veritabanındaki mevcut ağırlıkları çekip View'a gönderir
         $data['weights'] = $defaultModel->getScoreWeightsModel();
 
         $this->RenderLayout("score", "default", "score_weights", $data);
     }
 
-    // Formdan gelen verileri yakalayıp kaydeder
     public function save_weightsAction() {
-        // Güvenlik: Kullanıcı giriş yapmamışsa veya Admin değilse ana sayfaya at
         if (!isset($_SESSION['admin']) || $_SESSION['admin']['administrator'] != 1) {
             Controller::redirect("/default/index");
             exit;
@@ -267,10 +254,8 @@ class defaultController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $defaultModel = new defaultModel();
 
-            // Modele verileri gönderip güncelliyoruz
             $kayitDurumu = $defaultModel->updateScoreWeightsModel($_POST);
 
-            // Kayıt başarılıysa aynı sayfaya geri yönlendir (Uyarı veya başarı mesajı eklenebilir)
             if ($kayitDurumu) {
                 Controller::redirect("/default/score_weights");
             } else {
@@ -281,25 +266,40 @@ class defaultController extends Controller {
         }
     }
 
-    // --- AGR SİMÜLATÖRÜ KONTROLCÜSÜ ---
     public function simulatorAction($matchKey = null, $eventKey = null){
         if (!$matchKey || !$eventKey) die("Maç veya Turnuva seçilmedi!");
 
         $defaultModel = new defaultModel();
 
-        // 1. Kırmızı/Mavi İttifakı Öğren
         $data['match_details'] = $defaultModel->getSingleMatchModel($matchKey);
 
-        // 2. Statbotics'ten EPA Değerlerini Çek
         $data['epa_data'] = $defaultModel->getStatboticsEPA($eventKey);
 
-        // 3. Simülatör İçin Özel Detaylı Scout İstihbaratını Çek
         $data['scout_data'] = $defaultModel->getSimulatorDataModel($eventKey);
 
         $data['match_key'] = $matchKey;
         $data['event_key'] = $eventKey;
 
         $this->RenderLayout("score", "default", "simulator", $data);
+    }
+
+    public function addPracticeMatchAction() {
+        if ($_POST) {
+            $tournament_id = $_POST['tournament_id'];
+            $team_id = $_POST['team_id'];
+            $match_no = $_POST['match_no'];
+
+            $match_key = $tournament_id . "_pm" . $match_no;
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                "status" => "success",
+                "match_key" => $match_key,
+                "team_key" => $team_id,
+                "event_key" => $tournament_id
+            ]);
+            exit;
+        }
     }
 }
 ?>

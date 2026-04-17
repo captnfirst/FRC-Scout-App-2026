@@ -123,6 +123,8 @@
                             <th class="text-info" title="Otonom Yakıt Ortalaması">Auto Ort.</th>
                             <th class="text-success" title="Teleop Yakıt Ortalaması">Teleop Ort.</th>
                             <th class="text-danger" title="Tırmanma Başarısı Oranı">Tırmanma %</th>
+                            <th class="text-secondary" title="İyi:4, Orta:2, Kötü:0 Puan Üzerinden Hesaplanan Defans Kalitesi">🛡️ Defans Kalitesi</th>
+                            <th class="text-secondary" title="Sadece 'İyi' Yapılan Feed Oranı">🎯 İyi Feed %</th>
                             <th title="100 Üzerinden FRC 6459 Algoritma Puanı (AGR Score)">🔥 AGR SCORE</th>
                             <th>Öneri</th>
                             <th class="bg-dark text-white">Durum</th>
@@ -139,8 +141,7 @@
                             $wTeleop = isset($data['weights']['teleop']) ? $data['weights']['teleop'] : 40;
                             $wClimb = isset($data['weights']['climb']) ? $data['weights']['climb'] : 10;
 
-                            // 2. ADIM: İdeal Maksimum Kapasiteler (Algoritmanın oran yapabilmesi için)
-                            // Bu değerler sistemin 100 üzerinden puanlama yapabilmesi için takımların ulaşabileceği tavan hedeflerdir.
+                            // 2. ADIM: İdeal Maksimum Kapasiteler
                             $maxEpa = 250;
                             $maxAutoFuel = 100;
                             $maxTeleopFuel = 200;
@@ -152,25 +153,42 @@
                                 // Canlı Sıralama Verileri
                                 $liveRank = isset($data['live_rankings'][$tNo]) ? $data['live_rankings'][$tNo]['rank'] : '-';
 
-                                // EPA ve Kendi Scout Verilerimiz
+                                // Temel Veriler
                                 $epa = isset($data['epa_data'][$tKey]) ? $data['epa_data'][$tKey]['toplam_epa'] : 0;
                                 $gozlem = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['match_count'] : 0;
                                 $avgAuto = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['avg_auto_fuel'] : 0;
                                 $avgTeleop = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['avg_teleop_fuel'] : 0;
                                 $climbCount = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['total_teleop_climb'] : 0;
 
+                                // --- FİLTRELİ DEFANS VE FEED VERİLERİ ---
+                                $defensePlayed = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['defense_played_count'] : 0;
+                                $goodDefense = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['good_defense_count'] : 0;
+                                $medDefense = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['medium_defense_count'] : 0;
+                                $badDefense = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['bad_defense_count'] : 0;
+
+                                $goodFeed = isset($data['scout_stats'][$tKey]) ? $data['scout_stats'][$tKey]['good_feed_count'] : 0;
+
+                                // --- ORAN HESAPLAMALARI ---
                                 $climbRate = ($gozlem > 0) ? ($climbCount / $gozlem) : 0;
+                                $feedRate = ($gozlem > 0) ? round(($goodFeed / $gozlem) * 100) : 0;
+
+                                // Defans Kalitesi Oranı (Artık -1 değil 0 dönüyor)
+                                $defenseRate = 0;
+                                if ($defensePlayed > 0) {
+                                    $earnedPoints = ($goodDefense * 4) + ($medDefense * 2) + ($badDefense * 0);
+                                    $maxPossiblePoints = $defensePlayed * 4;
+                                    $defenseRate = round(($earnedPoints / $maxPossiblePoints) * 100);
+                                }
 
                                 // --- YENİ DİNAMİK AGR POWER SCORE ALGORİTMASI ---
-                                // Formül: min( (Takımın Değeri / Beklenen Maksimum) * Admin Ağırlığı, Admin Ağırlığı )
                                 $epaPuan = min(($epa / $maxEpa) * $wEpa, $wEpa);
                                 $autoPuan = min(($avgAuto / $maxAutoFuel) * $wAuto, $wAuto);
                                 $teleopPuan = min(($avgTeleop / $maxTeleopFuel) * $wTeleop, $wTeleop);
-                                $climbPuan = $climbRate * $wClimb; // Tırmanma zaten % (0 ile 1) arası olduğu için direkt çarpılır
+                                $climbPuan = $climbRate * $wClimb;
 
                                 $totalScore = round($epaPuan + $autoPuan + $teleopPuan + $climbPuan, 1);
 
-                                // Gözlem (Scout verisi) olmayan takımları direkt listenin en altına (0 puan) atıyoruz.
+                                // Gözlem yoksa 0'la
                                 if ($gozlem == 0) $totalScore = 0;
 
                                 $teamScores[] = [
@@ -180,6 +198,9 @@
                                         'auto' => $avgAuto,
                                         'teleop' => $avgTeleop,
                                         'climbRate' => round($climbRate * 100),
+                                        'feedRate' => $feedRate,
+                                        'defenseRate' => $defenseRate,
+                                        'defensePlayed' => $defensePlayed, // Renkleri ayırt etmek için eklendi
                                         'gozlem' => $gozlem,
                                         'liveRank' => $liveRank,
                                 ];
@@ -192,6 +213,17 @@
 
                             $rank = 1;
                             foreach($teamScores as $ts):
+
+                                // --- DİNAMİK RENK BELİRLEME ---
+                                $feedColor = ($ts['feedRate'] >= 70) ? 'bg-success' : (($ts['feedRate'] >= 40) ? 'bg-warning text-dark' : 'bg-danger');
+
+                                // Hiç defans yapmamışsa 0 yazacak ama rengi gri olacak (Kötülerle karışmasın)
+                                if ($ts['defensePlayed'] == 0) {
+                                    $defColor = 'bg-secondary opacity-50';
+                                } else {
+                                    $defColor = ($ts['defenseRate'] >= 70) ? 'bg-success' : (($ts['defenseRate'] >= 40) ? 'bg-warning text-dark' : 'bg-danger');
+                                }
+
                                 ?>
                                 <tr id="row_<?= $ts['team']['key'] ?>" data-agrrank="<?= $rank ?>" data-gozlem="<?= $ts['gozlem'] ?>">
                                     <td data-order="<?= $ts['liveRank'] === '-' ? 999 : $ts['liveRank'] ?>">
@@ -202,7 +234,7 @@
                                         <?php endif; ?>
                                     </td>
 
-                                    <td class="fw-bold fs-5">
+                                    <td data-order="<?= htmlspecialchars(str_replace('frc', '', $ts['team']['key'] ?? '')) ?>" class="fw-bold fs-5">
                                         <a href="/default/team_analysis/<?= $ts['team']['key'] ?>/<?= $data['secilen_turnuva'] ?>" class="text-decoration-none text-primary" title="Takım Derin Analizine Git">
                                             FRC <?= $ts['team']['team_number'] ?> <i class="fas fa-external-link-alt ms-1 text-info opacity-75" style="font-size: 0.85rem;"></i>
                                         </a>
@@ -214,9 +246,16 @@
                                     <td><span class="badge bg-primary stat-badge opacity-75"><?= $ts['epa'] ?></span></td>
                                     <td><span class="badge bg-info text-dark stat-badge border border-info"><?= $ts['auto'] ?></span></td>
                                     <td><span class="badge bg-success stat-badge opacity-75"><?= $ts['teleop'] ?></span></td>
-                                    <td><span class="badge bg-danger stat-badge opacity-75">%<?= $ts['climbRate'] ?></span></td>
+                                    <td data-order="<?= $ts['climbRate'] ?>"><span class="badge bg-danger stat-badge opacity-75">%<?= $ts['climbRate'] ?></span></td>
 
-                                    <td><span class="badge agr-score"><?= number_format($ts['score'], 1) ?></span></td>
+                                    <td data-order="<?= $ts['defenseRate'] ?>">
+                                        <span class="badge stat-badge <?= $defColor ?>">%<?= $ts['defenseRate'] ?></span>
+                                    </td>
+                                    <td data-order="<?= $ts['feedRate'] ?>">
+                                        <span class="badge stat-badge <?= $feedColor ?>">%<?= $ts['feedRate'] ?></span>
+                                    </td>
+
+                                    <td data-order="<?= $ts['score'] ?>"><span class="badge agr-score"><?= number_format($ts['score'], 1) ?></span></td>
 
                                     <td class="recommendation-cell">
                                         <span class="text-muted">-</span>

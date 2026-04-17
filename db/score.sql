@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Anamakine: 127.0.0.1
--- Üretim Zamanı: 05 Mar 2026, 21:11:30
+-- Üretim Zamanı: 17 Nis 2026, 21:39:41
 -- Sunucu sürümü: 10.4.32-MariaDB
 -- PHP Sürümü: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Veritabanı: `score`
+-- Veritabanı: `sdf`
 --
 
 -- --------------------------------------------------------
@@ -72,13 +72,6 @@ CREATE TABLE `score_weights` (
   `climb` float NOT NULL DEFAULT 10
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Tablo döküm verisi `score_weights`
---
-
-INSERT INTO `score_weights` (`id`, `epa`, `auto`, `teleop`, `climb`) VALUES
-(1, 35, 20, 40, 5);
-
 -- --------------------------------------------------------
 
 --
@@ -100,7 +93,8 @@ CREATE TABLE `scout_data` (
   `teleop_driver` varchar(20) DEFAULT NULL,
   `teleop_robot_role` varchar(20) DEFAULT NULL,
   `teleop_defense_quality` varchar(20) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_practice` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -151,7 +145,7 @@ ALTER TABLE `pit_scout_data`
 -- Tablo için AUTO_INCREMENT değeri `score_weights`
 --
 ALTER TABLE `score_weights`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tablo için AUTO_INCREMENT değeri `scout_data`

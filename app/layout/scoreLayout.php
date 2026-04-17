@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>AGR SKORLAMA | Dashboard</title>
-    <meta property="og:image" content="https://www.robopiece.online/dist/img/AdminLTELogo.png"/>
-    <meta name="twitter:card" content="https://www.robopiece.online/dist/img/AdminLTELogo.png"/>
+    <meta property="og:image" content="https://www.robopiece.com/dist/img/AdminLTELogo.png"/>
+    <meta name="twitter:card" content="https://www.robopiece.com/dist/img/AdminLTELogo.png"/>
     <link rel="shortcut icon" href="/dist/img/AdminLTELogo.png" type="image/png">
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -91,7 +91,7 @@
                 "responsive": true,
                 "paging": false,
                 "info": false,
-                "order": [[7, "desc"]], // 7. Sütun: AGR SCORE
+                "order": [[9, "desc"]], // 7. Sütun: AGR SCORE
                 "language": {
                     "search": "<i class='fas fa-search text-muted'></i> Robot Ara:",
                     "zeroRecords": "Eşleşen robot bulunamadı",
@@ -450,6 +450,35 @@
 
         // Sayfa yüklendiğinde ilk hesaplamayı yap
         calculateTotal();
+    });
+
+    $('#savePracticeMatch').click(function() {
+        var matchNo = $('#pm_number').val();
+        if (matchNo === "" || matchNo < 1) {
+            alert("Lütfen geçerli bir maç numarası girin!");
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Hazırlanıyor...');
+
+        const currentEvent = '<?= isset($data['secilen_turnuva']) ? $data['secilen_turnuva'] : (isset($data['event_key']) ? $data['event_key'] : '') ?>';
+        const currentTeam = '<?= isset($data['secilen_takim']) ? $data['secilen_takim'] : (isset($data['team_key']) ? $data['team_key'] : '') ?>';
+
+        // Rota ismine dikkat: Routing dosyasında ne yazdıysan o olmalı
+        $.post('/default/addPracticeMatch', {
+            tournament_id: currentEvent,
+            team_id: currentTeam,
+            match_no: matchNo
+        }, function(res) {
+            if(res.status == "success") {
+                // MATCH_KEY / TEAM_KEY / EVENT_KEY sıralamasıyla yönlendirir
+                window.location.href = "/default/scout/" + res.match_key + "/" + res.team_key + "/" + res.event_key;
+            } else {
+                alert("Maç oluşturulamadı!");
+                $btn.prop('disabled', false).text('Maçı Oluştur ve Scout Et');
+            }
+        }, 'json'); // JSON formatında beklediğimizi belirttik
     });
 </script>
 </body>
