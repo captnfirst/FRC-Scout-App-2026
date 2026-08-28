@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3c72;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2a5298;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f39c12;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e74c3c;stop-opacity:1" />
+    </linearGradient>
+    <filter id="drop-shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background Hexagon Badge -->
+  <polygon points="250,25 450,135 450,365 250,475 50,365 50,135" fill="url(#grad1)" filter="url(#drop-shadow)" stroke="rgba(255,255,255,0.2)" stroke-width="6"/>
+
+  <!-- Inner Hexagon Ring -->
+  <polygon points="250,45 430,145 430,355 250,455 70,355 70,145" fill="none" stroke="url(#grad2)" stroke-width="8" stroke-dasharray="25,10"/>
+
+  <!-- Robot Head / Central Emblem -->
+  <!-- Visor / Eye -->
+  <rect x="150" y="170" width="200" height="45" rx="22.5" fill="#00d2ff" filter="url(#drop-shadow)"/>
+  <rect x="180" y="182" width="140" height="20" rx="10" fill="#ffffff"/>
+
+  <!-- Antenna -->
+  <line x1="250" y1="170" x2="250" y2="120" stroke="#f39c12" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="250" cy="115" r="14" fill="url(#grad2)"/>
+
+  <!-- Body Armor / Chevrons -->
+  <path d="M160,250 L250,310 L340,250" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M175,295 L250,345 L325,295" fill="none" stroke="url(#grad2)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Text "FRC" -->
+  <text x="250" y="415" font-family="'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="6">FRC</text>
+  <text x="250" y="445" font-family="'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="18" fill="#f39c12" text-anchor="middle" letter-spacing="8">SCOUTING</text>
+</svg>

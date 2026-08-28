@@ -1,0 +1,10 @@
+# Set default character encoding and line endings
+* text=auto
+
+# GitHub Linguist Overrides:
+# Mark third-party libraries and assets as vendored so GitHub shows PHP as the primary language
+web/plugins/** linguist-vendored
+web/dist/** linguist-vendored
+app/vendor/** linguist-vendored
+database.sql linguist-documentation
+score_backup.sql linguist-documentation
