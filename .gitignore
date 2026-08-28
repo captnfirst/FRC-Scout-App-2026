@@ -1,0 +1,14 @@
+# System & Temp
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+# Environment / Local Config Overrides (NEVER PUSH SECRETS TO GIT)
+app/config/config.local.php
+deploy.zip
+
+# Backups
+score_backup.sql
+data_bak_safe/
